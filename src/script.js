@@ -12,12 +12,21 @@ const rgbeLoader = new RGBELoader()
 
 const meshObject = {}
 
-const physicalMaterial = new THREE.MeshPhysicalMaterial()
+const physicalMaterial = new THREE.MeshPhysicalMaterial({color: "#f8f8f8"})
 
 gltfLoader.load("/models/anisotropic-disc.gltf", (gltf) => {
+
+    physicalMaterial.metalness = 1
+    physicalMaterial.roughness = .32
+
     gltf.scene.children[0].material = physicalMaterial
     meshObject.Cylinder = gltf.scene.children[0]
     console.log(meshObject.Cylinder)
+
+    meshObject.Cylinder.scale.set(4,.75,4)
+    meshObject.Cylinder.rotation.y = -.5
+
+    scene.add(meshObject.Cylinder)
 })
 
 /**
@@ -46,7 +55,7 @@ mesh.rotation.x = Math.PI * 0.25
 mesh.rotation.z = -0.2
 mesh.position.y = 3.14
 
-scene.add(mesh)
+// scene.add(mesh)
 
 /**
  * Environment map
