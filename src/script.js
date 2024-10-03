@@ -10,6 +10,16 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 const gltfLoader = new GLTFLoader()
 const rgbeLoader = new RGBELoader()
 
+const meshObject = {}
+
+const physicalMaterial = new THREE.MeshPhysicalMaterial()
+
+gltfLoader.load("/models/anisotropic-disc.gltf", (gltf) => {
+    gltf.scene.children[0].material = physicalMaterial
+    meshObject.Cylinder = gltf.scene.children[0]
+    console.log(meshObject.Cylinder)
+})
+
 /**
  * Base
  */
@@ -26,16 +36,17 @@ const scene = new THREE.Scene()
 /**
  * Update all materials
  */
-const updateAllMaterials = () =>
-{
-    scene.traverse((child) =>
-    {
-        if(child.isMesh && child.material.isMeshStandardMaterial)
-        {
-            child.material.envMapIntensity = global.envMapIntensity
-        }
-    })
-}
+const cylinderGeometry = new THREE.CylinderGeometry(2,2,1,64,32)
+const material = new THREE.MeshPhysicalMaterial({color: "#f9f9f9"})
+material.metalness = 1
+material.roughness = .32
+
+const mesh = new THREE.Mesh(cylinderGeometry,material)
+mesh.rotation.x = Math.PI * 0.25
+mesh.rotation.z = -0.2
+mesh.position.y = 3.14
+
+scene.add(mesh)
 
 /**
  * Environment map
@@ -47,7 +58,6 @@ gui
     .min(0)
     .max(10)
     .step(0.001)
-    .onChange(updateAllMaterials)
 
 // HDR (RGBE) equirectangular
 rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) =>
@@ -62,16 +72,14 @@ rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) =>
  * Models
  */
 // Helmet
-gltfLoader.load(
-    '/models/FlightHelmet/glTF/FlightHelmet.gltf',
-    (gltf) =>
-    {
-        gltf.scene.scale.set(10, 10, 10)
-        scene.add(gltf.scene)
 
-        updateAllMaterials()
-    }
-)
+
+/**
+ * Lights
+ */
+const directionalLight = new THREE.DirectionalLight("#ffffff", 0.7)
+directionalLight.position.set(1, 0.25, 0);
+scene.add(directionalLight)
 
 /**
  * Sizes
@@ -101,7 +109,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(4, 5, 4)
+camera.position.set(5, 5, 8)
 scene.add(camera)
 
 // Controls
